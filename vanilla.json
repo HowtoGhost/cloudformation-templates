@@ -1,0 +1,144 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation template to deploy Ghost.",
+
+  "Parameters" : {
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "255",
+	  "Default": "Andy's MacBook Pro",
+      "AllowedPattern" : "[\\x20-\\x7E]*",
+	  "AllowedValues" : [ "Andy's MacBook Pro","David MBPr","davidwork","davidlaptop","howtoinstallghost Shared Key"],
+      "ConstraintDescription" : "can contain only ASCII characters."
+    },
+    "SSHLocation" : {
+      "Description" : " The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "InstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "t1.micro",
+      "AllowedValues" : [ "t1.micro"]
+    }
+  },
+  
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "32" }
+    },
+
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "32" : "ami-d7a18dbe", "64" : "ami-bba18dd2" },
+      "us-west-2"      : { "32" : "ami-def297ee", "64" : "ami-ccf297fc" }
+    }
+	
+  },
+
+  "Resources" : {
+    "Ec2Instance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+          "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                            { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+          "InstanceType"   : { "Ref" : "InstanceType" },
+          "SecurityGroups" : [ {"Ref" : "InstanceSecurityGroup"} ],
+          "KeyName"        : { "Ref" : "KeyName" },
+          "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#!/bin/bash -ex","\n",
+			
+			"# Start software updates","\n",
+			"/usr/bin/yum update -y","\n",
+			"/usr/bin/yum install gcc -y","\n",
+			"/usr/bin/yum install gcc-c++ compat-gcc-32 compat-gcc-32-c++ -y","\n",
+			"/usr/bin/yum install git -y","\n",
+			
+			"# Installing Node","\n",
+  		    "cd /home/ec2-user/","\n",
+            "/usr/bin/wget http://nodejs.org/dist/node-latest.tar.gz","\n",
+            "tar -xzf node-latest.tar.gz","\n",
+            "cd node-v*","\n",
+            "./configure","\n",
+            "/usr/bin/make","\n",
+            "/usr/bin/make install","\n",
+			
+			"# Create symlink for node and npm","\n",
+            "ln -s /usr/local/bin/node /usr/bin/node","\n",
+            "ln -s /usr/local/bin/npm /usr/bin/npm","\n",
+            "ln -s /usr/local/bin/node-waf /usr/bin/node-waf","\n",
+            "ln -s /usr/local/bin/pm2 /usr/bin/pm2","\n",
+			
+			"# Download and install Ghost","\n",
+            "mkdir -p /var/www/","\n",
+            "cd /var/www/","\n",
+            "curl -L -O https://ghost.org/zip/ghost-latest.zip","\n",
+            "/usr/bin/unzip -d ghost ghost-*","\n",
+            "cd ghost","\n",
+			
+			"# Setup config.js for Ghost","\n",
+            "sed -e 's/127.0.0.1/0.0.0.0/' -e 's/2368/80/' <config.example.js >config.js","\n",
+            "sed -i -e 's/mail: {},/mail: {\\\n\t    transport: \\x27SMTP\\x27,\\\n\t    options: {\\\n\t        service: \\x27sendmail\\x27,\\\n\t    }\\\n\t},/' /var/www/ghost/config.js","\n",
+			"# One of the processes while compiling sqlite requires the HOME variable to be set","\n",
+			"export HOME=/root","\n",
+			"/usr/local/bin/npm install --production","\n",
+			
+			"# Install pm2","\n",
+            "/usr/local/bin/npm install git://github.com/Unitech/pm2.git -g","\n",
+			"NODE_ENV=production /usr/local/bin/pm2 start index.js --name ghost","\n",
+			"/usr/local/bin/pm2 dump","\n",
+            "/usr/local/bin/pm2 startup centos","\n",
+			
+			"# Clean up","\n",
+			"rm /var/www/*.zip","\n",
+			"rm -r /home/ec2-user/node*","\n",
+			
+            "curl -X PUT -H 'Content-Type:' --data-binary '{\"Status\" : \"SUCCESS\",",
+                                                           "\"Reason\" : \"The application myapp is ready\",",
+                                                           "\"UniqueId\" : \"myapp\",",
+                                                           "\"Data\" : \"Done\"}' ",
+                  "\"", {"Ref" : "WaitForInstanceWaitHandle"},"\"\n" ]]}}
+      }
+    },
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable Access to Ghost application via port 80 and SSH access via port 22",
+        "SecurityGroupIngress" : [ 
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}},
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"}
+        ]
+      }
+    },
+
+    "WaitForInstanceWaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle",
+      "Properties" : {
+      }
+    },
+
+    "WaitForInstance" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "Ec2Instance",
+      "Properties" : {
+        "Handle" : {"Ref" : "WaitForInstanceWaitHandle"},
+        "Timeout" : "3600"
+      }
+    }
+  },
+
+  "Outputs" : {
+    "WebsiteURL" : {
+      "Description" : "The URL for the newly created Ghost application",
+      "Value" : { "Fn::Join" : ["", [ "http://", { "Fn::GetAtt" : [ "Ec2Instance", "PublicDnsName" ] }, "/ghost" ]]}
+    }
+  }
+}
