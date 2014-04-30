@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo -e "Node.js Version: \t" $(node -v)
+echo -e "npm Version: \t\t" $(npm -v)
+echo -e "Ghost config.js: \t /var/www/ghost/config.js"
+echo -e "Ghost Version: \t\t" $(cat /var/www/ghost/package.json | grep version | awk {'print $3'} | sed 's/\"//g' | sed 's/,//g')

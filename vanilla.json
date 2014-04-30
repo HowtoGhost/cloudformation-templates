@@ -58,8 +58,14 @@
 			"# Start software updates","\n",
 			"/usr/bin/yum update -y","\n",
 			"/usr/bin/yum install gcc -y","\n",
-			"/usr/bin/yum install gcc-c++ compat-gcc-32 compat-gcc-32-c++ -y","\n",
-			"/usr/bin/yum install git -y","\n",
+			"/usr/bin/yum install gcc-c++ compat-gcc-32 compat-gcc-32-c++ git -y","\n",
+			
+			"# Install and setup Nginx","\n",
+			"/usr/bin/yum install nginx -y","\n",
+			"service nginx start","\n",
+			"chkconfig nginx on","\n",
+			"echo 'server { listen 80; location / { proxy_set_header X-Real-IP $remote_addr; proxy_set_header Host $http_host; proxy_pass http://127.0.0.1:2368; } }' > /etc/nginx/conf.d/virtual.conf","\n",
+			"service nginx restart","\n",
 			
 			"# Installing Node","\n",
   		    "cd /home/ec2-user/","\n",
@@ -84,21 +90,30 @@
             "cd ghost","\n",
 			
 			"# Setup config.js for Ghost","\n",
-            "sed -e 's/127.0.0.1/0.0.0.0/' -e 's/2368/80/' <config.example.js >config.js","\n",
+            "cp /var/www/ghost/config.example.js /var/www/ghost/config.js","\n",
             "sed -i -e 's/mail: {},/mail: {\\\n\t    transport: \\x27SMTP\\x27,\\\n\t    options: {\\\n\t        service: \\x27sendmail\\x27,\\\n\t    }\\\n\t},/' /var/www/ghost/config.js","\n",
 			"# One of the processes while compiling sqlite requires the HOME variable to be set","\n",
 			"export HOME=/root","\n",
 			"/usr/local/bin/npm install --production","\n",
+			"# now that all ghost modules are intalled set owner","\n",
+			"useradd ghost","\n",
+			"chown -R ghost:ghost /var/www/ghost/","\n",
+			
+			"# allow sudo -u to work from cloudformation template","\n",
+			"sed -i '0,/Defaults    requiretty/ s/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers","\n",
 			
 			"# Install pm2","\n",
             "/usr/local/bin/npm install git://github.com/Unitech/pm2.git -g","\n",
-			"NODE_ENV=production /usr/local/bin/pm2 start index.js --name ghost","\n",
-			"/usr/local/bin/pm2 dump","\n",
+			"sudo -u ghost NODE_ENV=production /usr/local/bin/pm2 start index.js --name ghost","\n",
+			"sudo -u ghost /usr/local/bin/pm2 dump","\n",
             "/usr/local/bin/pm2 startup centos","\n",
+			"sed -i '0,/USER=root/ s/USER=root/#USER=ghost/' /etc/init.d/pm2-init.sh","\n",
+			
 			
 			"# Clean up","\n",
 			"rm /var/www/*.zip","\n",
 			"rm -r /home/ec2-user/node*","\n",
+			"# remove the edit to sudoers file","\n",
 			
             "curl -X PUT -H 'Content-Type:' --data-binary '{\"Status\" : \"SUCCESS\",",
                                                            "\"Reason\" : \"The application myapp is ready\",",
