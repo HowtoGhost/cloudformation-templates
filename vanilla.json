@@ -103,12 +103,10 @@
 			"sed -i '0,/Defaults    requiretty/ s/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers","\n",
 			
 			"# Install pm2","\n",
-            "/usr/local/bin/npm install git://github.com/Unitech/pm2.git -g","\n",
+            "/usr/local/bin/npm install -g pm2","\n",
 			"sudo -u ghost NODE_ENV=production /usr/local/bin/pm2 start index.js --name ghost","\n",
 			"sudo -u ghost /usr/local/bin/pm2 dump","\n",
-            "/usr/local/bin/pm2 startup centos","\n",
-			"sed -i '0,/USER=root/ s/USER=root/#USER=ghost/' /etc/init.d/pm2-init.sh","\n",
-			
+            "/usr/local/bin/pm2 startup centos","\n",			
 			
 			"# Clean up","\n",
 			"rm /var/www/*.zip","\n",
