@@ -26,8 +26,8 @@
     "InstanceType" : {
       "Description" : "WebServer EC2 instance type",
       "Type" : "String",
-      "Default" : "t1.micro",
-      "AllowedValues" : [ "t1.micro"]
+      "Default" : "t2.micro",
+      "AllowedValues" : [ "t2.micro"]
     }
   },
   
