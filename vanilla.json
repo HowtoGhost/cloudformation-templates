@@ -33,7 +33,8 @@
   
   "Mappings" : {
     "AWSInstanceType2Arch" : {
-      "t1.micro"    : { "Arch" : "32" }
+      "t1.micro"    : { "Arch" : "32" },
+      "t2.micro"    : { "Arch" : "64" }
     },
 
     "AWSRegionArch2AMI" : {
