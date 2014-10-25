@@ -4,7 +4,9 @@
 
 ## Variables
 
-MY_PATH="/home/ec2-user/ghost-init.sh"
+MY_PATH="$(pwd)"
+MY_NAME="$(basename $0)"
+MY_FULL_PATH="$MY_PATH/$MY_NAME"
 GHOST_DIR="/var/www/ghost"
 INSTALLED_VERSION=$(cat $GHOST_DIR/package.json | grep version | sed 's/\"//g' | sed 's/version//' | sed 's/://' | sed 's/,//' | sed 's/ //g' | tr -d '\r')
 CURRENT_VERSION=$(curl -sL -w "%{url_effective}" "https://ghost.org/zip/ghost-latest.zip" -o /dev/null | sed 's/https:\/\/en.ghost.org\/archives\/ghost-//' | sed 's/.zip//')
@@ -45,4 +47,4 @@ sudo -u ghost /usr/local/bin/pm2 dump
 crontab -r -u ec2-user
 
 # Delete myself
-rm -f $MY_PATH
+rm -f $MY_FULL_PATH
