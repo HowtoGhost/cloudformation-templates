@@ -13,6 +13,14 @@ CURRENT_VERSION=$(curl -sL -w "%{url_effective}" "https://ghost.org/zip/ghost-la
 
 ## Functions
 
+
+function cleanup {
+	# Clean up the cronjob that ran this script
+	crontab -r -u ec2-user
+	# Delete myself
+	rm -f $MY_FULL_PATH
+}
+
 function log {
     echo "[Ghost Init] - $*" | logger
 }
@@ -21,6 +29,7 @@ function log {
 log "The installed version of Ghost is $INSTALLED_VERSION and the current version of Ghost is $CURRENT_VERSION"
 if [[ "$INSTALLED_VERSION" == "$CURRENT_VERSION" ]]; then
     log "This instance is already running the latest version of Ghost, $INSTALLED_VERSION"
+	cleanup
     exit 0
 fi
 
@@ -43,8 +52,4 @@ chown -R ghost:ghost /var/www/ghost
 sudo /usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost
 sudo -u ghost /usr/local/bin/pm2 dump
 
-# Clean up the cronjob that ran this script
-crontab -r -u ec2-user
-
-# Delete myself
-rm -f $MY_FULL_PATH
+cleanup
