@@ -101,17 +101,17 @@
 			"chown -R ghost:ghost /var/www/ghost/","\n",
 			
 			"# allow sudo -u to work from cloudformation template","\n",
-			"sed -i '0,/Defaults    requiretty/ s/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers","\n",
+			"#sed -i '0,/Defaults    requiretty/ s/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers","\n",
 			
 			"# Install pm2","\n",
             "/usr/local/bin/npm install -g pm2","\n",
-			"sudo -u ghost NODE_ENV=production /usr/local/bin/pm2 start index.js --name ghost","\n",
+			"sudo /usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost","\n",
 			"sudo -u ghost /usr/local/bin/pm2 dump","\n",
             "/usr/local/bin/pm2 startup centos","\n",			
 			
 			"# Clean up","\n",
 			"rm /var/www/*.zip","\n",
-			"rm -r /home/ec2-user/node*","\n",
+			"rm -rf /home/ec2-user/node*","\n",
 			"# remove the edit to sudoers file","\n",
 			
             "curl -X PUT -H 'Content-Type:' --data-binary '{\"Status\" : \"SUCCESS\",",
