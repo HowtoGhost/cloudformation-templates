@@ -106,8 +106,12 @@
 			"# Install pm2","\n",
             "/usr/local/bin/npm install -g pm2","\n",
 			"sudo /usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost","\n",
-			"sudo -u ghost /usr/local/bin/pm2 dump","\n",
+			"sudo /usr/local/bin/pm2 dump","\n",
             "/usr/local/bin/pm2 startup centos","\n",			
+			
+			"Download Ghost init script from GitHub and setup a cron to run it on first boot","\n",
+			"wget -O - https://raw2.github.com/howtoinstallghost/cloudformation-templates/blob/master/ghost_init.sh >> /home/ec2-user/ghost_init.sh","\n",
+			"echo \"@reboot root /home/ec2-user/ghost_init.sh\" >> /etc/cron.d/ghost_init","\n",
 			
 			"# Clean up","\n",
 			"rm /var/www/*.zip","\n",
