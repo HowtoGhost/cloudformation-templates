@@ -12,17 +12,17 @@ INSTALLED_VERSION=$(cat $GHOST_DIR/package.json | grep version | sed 's/\"//g' |
 CURRENT_VERSION=$(curl -sL -w "%{url_effective}" "https://ghost.org/zip/ghost-latest.zip" -o /dev/null | sed 's/https:\/\/en.ghost.org\/archives\/ghost-//' | sed 's/.zip//')
 
 ## Functions
-
+function log {
+    echo "[Ghost Init] - $*" | logger
+}
 
 function cleanup {
 	# Clean up the cronjob that ran this script
+	log "Remove the ec2-user crontab"
 	crontab -r -u ec2-user
 	# Delete myself
+	log "Deleting this script"
 	rm -f $MY_FULL_PATH
-}
-
-function log {
-    echo "[Ghost Init] - $*" | logger
 }
 
 # Check and see if this instance is running the current version.  If it is exit.
@@ -39,6 +39,7 @@ pm2 kill
 cp $GHOST_DIR/config.js /tmp/
 rm -rf $GHOST_DIR/*
 cd /var/www/ 
+log "Downloading latest version of Ghost"
 curl -L -O https://ghost.org/zip/ghost-latest.zip
 unzip -d ghost ghost-latest.zip  
 rm ghost-latest.zip
@@ -46,10 +47,12 @@ cp /tmp/config.js /$GHOST_DIR/
 rm /tmp/config.js
 cd ghost
 cp $GHOST_DIR/config.example.js $GHOST_DIR/config.js
+log "Running npm install"
 sudo npm install --production
 chown -R ghost:ghost /var/www/ghost
 
-sudo /usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost
+log "Starting Ghost using pm2 under the ghost user"
+sudo /usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost |
 sudo -u ghost /usr/local/bin/pm2 dump
 
 cleanup
