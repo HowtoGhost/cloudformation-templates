@@ -18,7 +18,7 @@ function log {
 
 function cleanup {
 	# Clean up the cronjob that ran this script
-	log "Remove the ec2-user crontab"
+	log "Remove the cron from /etc/cron.d/qq"
 	rm /etc/cron.d/ghost_init
 	# Delete myself
 	log "Deleting this script"
@@ -46,9 +46,8 @@ rm ghost-latest.zip
 cp /tmp/config.js /$GHOST_DIR/
 rm /tmp/config.js
 cd ghost
-cp $GHOST_DIR/config.example.js $GHOST_DIR/config.js
 log "Running npm install"
-sudo npm install --production
+npm install --production
 chown -R ghost:ghost /var/www/ghost
 
 log "Starting Ghost using pm2 under the ghost user"
