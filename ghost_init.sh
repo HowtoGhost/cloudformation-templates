@@ -52,7 +52,7 @@ sudo npm install --production
 chown -R ghost:ghost /var/www/ghost
 
 log "Starting Ghost using pm2 under the ghost user"
-sudo /usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost |
-sudo -u ghost /usr/local/bin/pm2 dump
+/usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost
+/usr/local/bin/pm2 dump
 
 cleanup
