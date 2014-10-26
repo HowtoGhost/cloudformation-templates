@@ -19,7 +19,7 @@ function log {
 function cleanup {
 	# Clean up the cronjob that ran this script
 	log "Remove the ec2-user crontab"
-	crontab -r -u ec2-user
+	rm /etc/cron.d/ghost_init
 	# Delete myself
 	log "Deleting this script"
 	rm -f $MY_FULL_PATH
