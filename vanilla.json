@@ -77,9 +77,6 @@
 			"useradd ghost","\n",
 			"chown -R ghost:ghost /var/www/ghost/","\n",
 			
-			"# allow sudo -u to work from cloudformation template","\n",
-			"#sed -i '0,/Defaults    requiretty/ s/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers","\n",
-			
 			"# Install pm2","\n",
             "/usr/local/bin/npm install -g pm2","\n",
 			"/usr/local/bin/pm2 --run-as-user ghost start index.js --name ghost","\n",
