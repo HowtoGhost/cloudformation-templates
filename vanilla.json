@@ -86,7 +86,7 @@
 			"# Download Ghost init script from GitHub and setup a cron to run it on first boot","\n",
 			"wget -O - https://raw2.github.com/howtoinstallghost/cloudformation-templates/master/ghost_init.sh >> /home/ec2-user/ghost_init.sh","\n",
 			"chmod +x /home/ec2-user/ghost_init.sh","\n",
-			"echo \"@reboot root /home/ec2-user/ghost_init.sh\" >> /etc/cron.d/ghost_init","\n",
+			"echo \"@reboot root /home/ec2-user/ghost_init.sh >> /var/log/ghost_init.log\" >> /etc/cron.d/ghost_init","\n",
 			
 			"# Clean up","\n",
 			"rm /var/www/*.zip","\n",

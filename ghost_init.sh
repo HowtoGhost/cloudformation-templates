@@ -13,12 +13,12 @@ CURRENT_VERSION=$(curl -sL -w "%{url_effective}" "https://ghost.org/zip/ghost-la
 
 ## Functions
 function log {
-    echo "[Ghost Init] - $*" | logger
+    echo "[Ghost Init] - $*" >> /var/log/ghost_init.log
 }
 
 function cleanup {
 	# Clean up the cronjob that ran this script
-	log "Remove the cron from /etc/cron.d/qq"
+	log "Remove the cron from /etc/cron.d/"
 	rm /etc/cron.d/ghost_init
 	# Delete myself
 	log "Deleting this script"
