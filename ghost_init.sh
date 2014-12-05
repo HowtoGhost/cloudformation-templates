@@ -23,7 +23,7 @@ function cleanup {
 	log "Remove the cron from /etc/cron.d/ that ran this script"
 	rm /etc/cron.d/ghost_init
 	log "Deleting this script"
-	rm -f $FULL_PATH
+	rm -- "$0"
 }
 
 # Check and see if this instance is running the current version.  If it is exit.
