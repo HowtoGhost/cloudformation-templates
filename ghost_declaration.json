@@ -1,0 +1,13 @@
+{
+  "apps" : [{
+    "name"        : "ghost",
+    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+    "watch"       : false,
+    "cwd"         : "/var/www/ghost",
+	"script"      : "index.js",
+	"pm_exec_path": "/var/www/ghost/index.js",
+    "env": {
+        "NODE_ENV": "production"
+    }
+  }]
+}
