@@ -50,7 +50,6 @@ log "Running npm install"
 chown -R ghost:ghost /var/www/ghost
 
 log "Starting Ghost using pm2 under the ghost user"
-/usr/bin/pm2 start /root/.pm2/ghost.json
-/usr/bin/pm2 dump
+/usr/bin/pm2 resurrect
 
 cleanup
