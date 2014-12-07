@@ -9,7 +9,6 @@
 ## when somebody lauches our AMI /home/ec2-user/ghost_init.sh runs, compares the installed version of Ghost to the latest version, and if out of date downloads and installs the latest version.  
 
 ## Variables
-FULL_PATH="/home/ec2-user/ghost_init.sh"
 GHOST_DIR="/var/www/ghost"
 INSTALLED_VERSION=$(cat $GHOST_DIR/package.json | grep version | sed 's/\"//g' | sed 's/version//' | sed 's/://' | sed 's/,//' | sed 's/ //g' | tr -d '\r')
 CURRENT_VERSION=$(curl -sL -w "%{url_effective}" "https://ghost.org/zip/ghost-latest.zip" -o /dev/null | sed 's/https:\/\/en.ghost.org\/archives\/ghost-//' | sed 's/.zip//')
@@ -51,7 +50,7 @@ log "Running npm install"
 chown -R ghost:ghost /var/www/ghost
 
 log "Starting Ghost using pm2 under the ghost user"
-/usr/bin/pm2 start index.js --name ghost
+/usr/bin/pm2 start /root/.pm2/ghost.json
 /usr/bin/pm2 dump
 
 cleanup
