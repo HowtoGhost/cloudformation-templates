@@ -52,7 +52,7 @@
 			"# Download and install Ghost","\n",
             "mkdir -p /var/www/","\n",
             "cd /var/www/","\n",
-            "curl -L -O https://en.ghost.org/archives/ghost-0.5.4.zip","\n",
+            "curl -L -O https://ghost.org/zip/ghost-latest.zip","\n",
             "/usr/bin/unzip -d ghost ghost-*","\n",
             "cd ghost","\n",
 			

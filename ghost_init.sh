@@ -34,7 +34,7 @@ if [[ "$INSTALLED_VERSION" == "$CURRENT_VERSION" ]]; then
 fi
 
 # Stop Ghost and download and install the new version
-/etc/init.d/pm2-init.sh stop
+pm2 kill
 cp $GHOST_DIR/config.js /tmp/
 rm -rf $GHOST_DIR/*
 cd /var/www/ 
@@ -50,6 +50,6 @@ log "Running npm install"
 chown -R ghost:ghost /var/www/ghost
 
 log "Starting Ghost using pm2 under the ghost user"
-/etc/init.d/pm2-init.sh start
+pm2 resurrect
 
 cleanup
