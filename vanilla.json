@@ -65,6 +65,7 @@
 			"# now that all ghost modules are intalled set owner","\n",
 			"useradd ghost","\n",
 			"chown -R ghost:ghost /var/www/ghost/","\n",
+			"usermod -a -G ghost ec2-user","\n",
 			
 			"# Install pm2","\n",
             "/usr/bin/npm install -g pm2","\n",
