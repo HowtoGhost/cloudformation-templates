@@ -50,6 +50,6 @@ log "Running npm install"
 chown -R ghost:ghost /var/www/ghost
 
 log "Starting Ghost using pm2 under the ghost user"
-pm2 resurrect
+su -c "pm2 resurrect" -s /bin/bash ghost
 
 cleanup
